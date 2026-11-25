@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>七大訪區勇者大賽｜命運抽籤</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;600;700;900&display=swap');
+
+:root {
+  --ink:#252344;
+  --pink:#ff75a0;
+  --yellow:#ffd85e;
+  --purple:#8171e8;
+  --blue:#64c8ed;
+}
+* { box-sizing:border-box; }
+body {
+  margin:0; min-height:100vh; color:var(--ink);
+  font-family:"Noto Sans TC",sans-serif;
+  background:
+    radial-gradient(circle at 10% 15%,#ffe2ed 0 9%,transparent 10%),
+    radial-gradient(circle at 90% 80%,#d9f4ff 0 12%,transparent 13%),
+    linear-gradient(135deg,#fff8e9,#f5edff 55%,#e8f8ff);
+}
+button { font:inherit; cursor:pointer; }
+header { text-align:center; padding:28px 16px 12px; }
+.kicker { font-weight:900; letter-spacing:4px; color:#8978d9; }
+h1 {
+  margin:8px 0; font-size:clamp(30px,5vw,54px);
+  line-height:1.2; font-weight:900;
+  text-shadow:3px 3px 0 white,5px 5px 0 #f4a6c4;
+}
+.subtitle { color:#68647e; font-weight:700; }
+main { max-width:1100px; margin:auto; padding:12px 18px 45px; }
+.panel {
+  background:#ffffffd9; border:3px solid white; border-radius:24px;
+  padding:20px; box-shadow:0 12px 35px #62518b20;
+}
+.top-actions {
+  display:flex; justify-content:center; flex-wrap:wrap;
+  gap:10px; margin:18px 0;
+}
+.btn {
+  border:0; border-radius:999px; padding:12px 22px;
+  font-weight:900; color:#fff; background:var(--purple);
+  box-shadow:0 5px 0 #5e50b8; transition:.15s;
+}
+.btn:active { transform:translateY(3px); box-shadow:0 2px 0 #5e50b8; }
+.btn.pink { background:#fa77a2; box-shadow:0 5px 0 #cf4f7b; }
+.btn.blue { background:#55b9df; box-shadow:0 5px 0 #318caf; }
+.btn.yellow { background:#f4c84c; color:#4a3c21; box-shadow:0 5px 0 #d5a52c; }
+.btn.dark { background:#494568; box-shadow:0 5px 0 #292640; }
+.btn:disabled { opacity:.4; cursor:not-allowed; }
+.status {
+  text-align:center; font-size:18px; font-weight:900;
+  margin:14px 0; min-height:30px;
+}
+.progress-wrap {
+  max-width:600px; margin:10px auto 22px;
+  height:13px; border-radius:99px; background:#e9e4f6; overflow:hidden;
+}
+.progress {
+  height:100%; width:0; background:linear-gradient(90deg,#ff83ad,#8877e9);
+  transition:width .4s;
+}
+.cards {
+  display:grid; grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:14px;
+}
+.hero-card {
+  border:3px solid white; border-radius:20px; padding:14px 8px;
+  background:linear-gradient(160deg,#fff,#f7f1ff);
+  box-shadow:0 7px 18px #493d6b18;
+  text-align:center; min-width:0; position:relative;
+  transition:.2s; overflow:hidden;
+}
+.hero-card:not(:disabled):hover { transform:translateY(-5px) rotate(-1deg); }
+.hero-card:disabled { cursor:default; }
+.hero-card.done { background:linear-gradient(160deg,#fff3d1,#ffe4ec); }
+.hero-card .number {
+  position:absolute; left:10px; top:8px; font-size:12px;
+  color:#9589b8; font-weight:900;
+}
+.avatar { width:100%; max-width:125px; height:130px; margin:3px auto 6px; }
+.hero-name { font-size:18px; font-weight:900; }
+.hero-role { font-size:12px; color:#807895; font-weight:700; margin-top:3px; }
+.card-state {
+  margin:10px auto 0; border-radius:999px; padding:5px 8px;
+  font-size:12px; font-weight:900; background:#eeeafa; color:#7669bc;
+}
+.done .card-state { background:#ffcfdf; color:#a33f66; }
+.result {
+  display:none; margin:22px auto 0; max-width:650px;
+  padding:22px; border-radius:24px; text-align:center;
+  background:linear-gradient(135deg,#fff0c5,#ffe4ef,#e8e2ff);
+  border:3px solid white; box-shadow:0 8px 25px #51427820;
+  animation:pop .45s ease;
+}
+.result.show { display:block; }
+.result small { color:#8a6e9e; font-weight:900; letter-spacing:3px; }
+.result .area {
+  font-size:clamp(28px,6vw,44px); font-weight:900;
+  color:#594bb0; margin:8px 0;
+}
+.result .who { font-size:20px; font-weight:900; }
+@keyframes pop {
+  0% { transform:scale(.7); opacity:0; }
+  80% { transform:scale(1.04); }
+  100% { transform:scale(1); opacity:1; }
+}
+.final-list {
+  display:none; margin-top:25px; padding:22px;
+}
+.final-list.show { display:block; }
+.final-list h2 { text-align:center; }
+table { width:100%; border-collapse:collapse; background:white; border-radius:12px; overflow:hidden; }
+th,td { padding:12px 10px; text-align:center; border-bottom:1px solid #eee9f6; }
+th { background:#e9e3ff; }
+.note { text-align:center; color:#77718b; font-size:13px; margin-top:22px; }
+footer { text-align:center; padding:0 12px 30px; color:#918aa3; font-size:12px; }
+@media(max-width:720px) {
+  .cards { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  header { padding-top:20px; }
+}
+@media(min-width:721px) and (max-width:950px) {
+  .cards { grid-template-columns:repeat(3,minmax(0,1fr)); }
+}
+@media print {
+  body { background:white; }
+  .top-actions,.note,footer { display:none; }
+  .panel { box-shadow:none; }
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="kicker">THE DESTINY PROJECT · 2026</div>
+  <h1>七大訪區勇者大賽</h1>
+  <div class="subtitle">七位勇者集結，下一站由命運決定！</div>
+</header>
+
+<main>
+  <section class="panel">
+    <div class="top-actions">
+      <button class="btn yellow" id="startBtn" onclick="startDraw()">✦ 啟動命運系統</button>
+      <button class="btn dark" onclick="toggleSound()" id="soundBtn">🔊 音效開啟</button>
+      <button class="btn blue" onclick="fullScreen()">⛶ 全螢幕投影</button>
+      <button class="btn pink" onclick="exportCSV()" id="csvBtn" disabled>⬇ 匯出抽籤結果</button>
+      <button class="btn" onclick="resetDraw()">重新開始</button>
+    </div>
+
+    <div class="status" id="status">等待系統啟動……勇者們，準備好了嗎？</div>
+    <div class="progress-wrap"><div class="progress" id="progress"></div></div>
+
+    <div class="cards" id="cards"></div>
+
+    <div class="result" id="result">
+      <small>DESTINY UNLOCKED</small>
+      <div class="who" id="resultWho"></div>
+      <div class="area" id="resultArea"></div>
+      <div id="resultQuote"></div>
+    </div>
+
+    <section class="final-list panel" id="finalList">
+      <h2>🏆 七位勇者・最終訪區配置</h2>
+      <table>
+        <thead><tr><th>勇者</th><th>角色稱號</th><th>新服務區域</th></tr></thead>
+        <tbody id="finalTable"></tbody>
+      </table>
+      <p style="text-align:center;font-weight:900;">任務完成！新的旅程正式展開！</p>
+    </section>
+  </section>
+  <div class="note">※ 點選「啟動命運系統」後，請依會議現場決定的順序點選勇者卡片。</div>
+</main>
+<footer>SEVEN AREA DESTINY SYSTEM · 勇者大賽</footer>
+
+<script>
+const heroes = [
+  {name:"嘉怡", area:"東7-9", role:"星際導航員", color:"#ff91b6", hair:"#49334e", accessory:"✦"},
+  {name:"玉潔", area:"東10-12", role:"策略指揮官", color:"#79c9f0", hair:"#343b68", accessory:"★"},
+  {name:"曉莉", area:"安平1-3", role:"光之守護者", color:"#f5c75d", hair:"#754b35", accessory:"✧"},
+  {name:"子萱", area:"南3-5", role:"熱血探險家", color:"#9bdc9b", hair:"#593c35", accessory:"◆"},
+  {name:"珮綺", area:"仁德2-4", role:"神秘情報官", color:"#b5a0f2", hair:"#342c4e", accessory:"✦"},
+  {name:"崴琳", area:"東4-6", role:"未來觀測師", color:"#f29b73", hair:"#493a34", accessory:"☼"},
+  {name:"秀怡", area:"東13-14、仁德1", role:"次元領航使", color:"#83d8d0", hair:"#343e50", accessory:"✧"}
+];
+
+const quotes = [
+  "伺服器確認中……命運資料已成功解鎖！",
+  "系統表示：這次真的不是演算法在開玩笑。",
+  "地圖載入完成！請勇敢接受新的挑戰。",
+  "恭喜解鎖新地圖！記得先深呼吸一下。",
+  "命運已經按下確認鍵，不能假裝沒看到囉！",
+  "資料傳輸成功！新的冒險即將開始。",
+  "系統提醒：勇者本人不得申請重新抽取。"
+];
+
+let assignments = [];
+let revealed = {};
+let started = false;
+let soundOn = true;
+let audioCtx = null;
+let revealOrder = [];
+
+function avatarSVG(hero,index) {
+  const hair = hero.hair, color = hero.color;
+  const styles = [
+    `<path d="M29 46 Q15 5 52 9 Q91 4 83 48 L77 28 Q54 43 34 27Z" fill="${hair}"/>`,
+    `<path d="M27 45 Q17 7 52 8 Q91 5 82 49 L74 22 Q54 33 34 23Z" fill="${hair}"/>`,
+    `<path d="M27 46 Q18 5 53 8 Q88 5 83 48 L78 24 Q52 36 33 24Z" fill="${hair}"/>`,
+    `<path d="M28 45 Q14 7 53 8 Q90 5 82 48 L75 24 Q50 37 33 25Z" fill="${hair}"/>`,
+    `<path d="M27 46 Q17 6 53 8 Q90 4 83 48 L75 25 Q50 39 33 24Z" fill="${hair}"/>`,
+    `<path d="M28 45 Q16 7 53 8 Q90 5 83 48 L76 24 Q51 37 33 24Z" fill="${hair}"/>`,
+    `<path d="M28 45 Q15 6 53 8 Q91 4 83 48 L75 24 Q51 37 33 24Z" fill="${hair}"/>`
+  ][index];
+  return `<svg viewBox="0 0 110 140" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="55" cy="132" rx="34" ry="5" fill="#dcd4e9"/>
+    <path d="M23 132 Q22 94 38 86 L72 86 Q89 95 88 132Z" fill="${color}" stroke="#51466b" stroke-width="2"/>
+    <path d="M42 89 L55 106 L68 89" fill="#fff" opacity=".9"/>
+    <path d="M40 87 L55 106 L70 87" fill="none" stroke="#51466b" stroke-width="2"/>
+    <rect x="47" y="72" width="16" height="20" rx="7" fill="#ffd7bb"/>
+    <ellipse cx="55" cy="47" rx="29" ry="34" fill="#ffddc4" stroke="#51466b" stroke-width="2"/>
+    ${hair}
+    <path d="M39 50 Q44 45 48 50 M62 50 Q67 45 71 50" fill="none" stroke="#47394b" stroke-width="2.5" stroke-linecap="round"/>
+    <circle cx="44" cy="57" r="3" fill="#f28da0" opacity=".8"/>
+    <circle cx="67" cy="57" r="3" fill="#f28da0" opacity=".8"/>
+    <path d="M49 64 Q55 69 62 63" fill="none" stroke="#9d5267" stroke-width="2" stroke-linecap="round"/>
+    <circle cx="27" cy="55" r="5" fill="#ffd7bb" stroke="#51466b" stroke-width="1.5"/>
+    <circle cx="83" cy="55" r="5" fill="#ffd7bb" stroke="#51466b" stroke-width="1.5"/>
+    <path d="M35 95 L19 115 M75 95 L91 115" stroke="#ffddc4" stroke-width="9" stroke-linecap="round"/>
+    <circle cx="55" cy="116" r="4" fill="#fff"/>
+    <text x="82" y="20" font-size="18" fill="#f2ad39">${hero.accessory}</text>
+  </svg>`;
+}
+
+function renderCards() {
+  document.getElementById("cards").innerHTML = heroes.map((h,i) => `
+    <button class="hero-card" id="hero${i}" onclick="reveal(${i})" disabled>
+      <span class="number">勇者 0${i+1}</span>
+      <div class="avatar">${avatarSVG(h,i)}</div>
+      <div class="hero-name">${h.name}</div>
+      <div class="hero-role">${h.role}</div>
+      <div class="card-state" id="state${i}">等待抽籤</div>
+    </button>
+  `).join("");
+}
+
+function playTone(freq=440,duration=.16,type="sine",volume=.07) {
+  if (!soundOn) return;
+  try {
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === "suspended") audioCtx.resume();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq,audioCtx.currentTime);
+    gain.gain.setValueAtTime(volume,audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+duration);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(); osc.stop(audioCtx.currentTime+duration);
+  } catch(e) {}
+}
+function fanfare() {
+  [523,659,784,1046].forEach((f,i)=>setTimeout(()=>playTone(f,.25,"triangle"),i*130));
+}
+function toggleSound() {
+  soundOn = !soundOn;
+  document.getElementById("soundBtn").textContent = soundOn ? "🔊 音效開啟" : "🔇 音效關閉";
+  if (soundOn) playTone(660,.2);
+}
+
+function startDraw() {
+  if (started) return;
+  // 預先產生完整分配，確保每人不會抽到自己的原區，且區域不重複
+  let tries = 0;
+  do {
+    assignments = heroes.map(h=>h.area);
+    for (let i=assignments.length-1;i>0;i--) {
+      const j=Math.floor(Math.random()*(i+1));
+      [assignments[i],assignments[j]]=[assignments[j],assignments[i]];
+    }
+    tries++;
+  } while (assignments.some((a,i)=>a===heroes[i].area) && tries<10000);
+
+  if (assignments.some((a,i)=>a===heroes[i].area)) {
+    document.getElementById("status").textContent="系統忙碌中，請重新啟動。";
+    return;
+  }
+
+  started = true;
+  revealed = {};
+  revealOrder = [];
+  document.getElementById("startBtn").disabled = true;
+  document.getElementById("csvBtn").disabled = true;
+  document.getElementById("result").classList.remove("show");
+  document.getElementById("finalList").classList.remove("show");
+  document.getElementById("status").textContent="命運系統啟動成功！請選擇第一位勇者！";
+  heroes.forEach((h,i)=>{
+    const card=document.getElementById("hero"+i);
+    card.disabled=false;
+    card.classList.remove("done");
+    document.getElementById("state"+i).textContent="點我揭曉";
+  });
+  playTone(440,.2);
+  setTimeout(()=>playTone(660,.2),180);
+  setTimeout(()=>playTone(880,.35),360);
+}
+
+function reveal(i) {
+  if (!started || revealed[i]) return;
+  revealed[i]=true;
+  revealOrder.push(i);
+  const h=heroes[i];
+  const area=assignments[i];
+
+  document.getElementById("hero"+i).disabled=true;
+  document.getElementById("hero"+i).classList.add("done");
+  document.getElementById("state"+i).textContent="已揭曉 ✓";
+  document.getElementById("resultWho").textContent=`${h.name}｜${h.role}`;
+  document.getElementById("resultArea").textContent=area;
+  document.getElementById("resultQuote").textContent=quotes[Math.floor(Math.random()*quotes.length)];
+  document.getElementById("result").classList.remove("show");
+  void document.getElementById("result").offsetWidth;
+  document.getElementById("result").classList.add("show");
+
+  const count=revealOrder.length;
+  document.getElementById("progress").style.width=(count/7*100)+"%";
+  document.getElementById("status").textContent=`已解鎖 ${count} / 7 位勇者！${count===7?"全員集結完成！":"下一位勇者，請接收命運訊號！"}`;
+
+  playTone(260,.12,"square",.04);
+  setTimeout(()=>playTone(520,.22,"triangle",.08),130);
+  if (count===7) {
+    setTimeout(()=>{
+      fanfare();
+      showFinal();
+    },900);
+  }
+}
+
+function showFinal() {
+  const rows=heroes.map((h,i)=>`
+    <tr><td>${h.name}</td><td>${h.role}</td><td><strong>${assignments[i]}</strong></td></tr>
+  `).join("");
+  document.getElementById("finalTable").innerHTML=rows;
+  document.getElementById("finalList").classList.add("show");
+  document.getElementById("csvBtn").disabled=false;
+  document.getElementById("status").textContent="🎉 七位勇者全數完成抽籤！新地圖正式開放！";
+  document.getElementById("finalList").scrollIntoView({behavior:"smooth",block:"center"});
+}
+
+function exportCSV() {
+  if (revealOrder.length!==7) return;
+  const rows=[["訪員","角色稱號","原服務區","抽中服務區"]];
+  heroes.forEach((h,i)=>rows.push([h.name,h.role,h.area,assignments[i]]));
+  const csv="\uFEFF"+rows.map(row=>row.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(",")).join("\r\n");
+  const blob=new Blob([csv],{type:"text/csv;charset=utf-8;"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url; a.download="七大訪區勇者大賽_抽籤結果.csv";
+  a.click(); URL.revokeObjectURL(url);
+}
+
+function resetDraw() {
+  started=false; assignments=[]; revealed={}; revealOrder=[];
+  document.getElementById("startBtn").disabled=false;
+  document.getElementById("csvBtn").disabled=true;
+  document.getElementById("status").textContent="等待系統啟動……勇者們，準備好了嗎？";
+  document.getElementById("progress").style.width="0";
+  document.getElementById("result").classList.remove("show");
+  document.getElementById("finalList").classList.remove("show");
+  heroes.forEach((h,i)=>{
+    const card=document.getElementById("hero"+i);
+    card.disabled=true; card.classList.remove("done");
+    document.getElementById("state"+i).textContent="等待抽籤";
+  });
+}
+function fullScreen() {
+  if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+  else document.exitFullscreen?.();
+}
+
+renderCards();
+</script>
+</body>
+</html>
